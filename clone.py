@@ -20,17 +20,17 @@ class MVCCloner:
     def __init__(self):
         pass
 
-    @staticmethod
-    def unitVector(vec):
-        return vec / np.linalg.norm(vec)
+    # @staticmethod
+    # def unitVector(vec):
+    #     return vec / np.linalg.norm(vec)
 
-    @staticmethod
-    def angleBetween(pA, pO, pB):
-        ''' Calculate ∢ pA, pO, pB
-        '''
-        vOA = MVCCloner.unitVector(pA - pO)
-        vOB = MVCCloner.unitVector(pB - pO)
-        return np.arccos(np.clip(np.dot(vOA, vOB), -1.0, 1.0))
+    # @staticmethod
+    # def angleBetween(pA, pO, pB):
+    #     ''' Calculate ∢ pA, pO, pB
+    #     '''
+    #     vOA = MVCCloner.unitVector(pA - pO)
+    #     vOB = MVCCloner.unitVector(pB - pO)
+    #     return np.arccos(np.clip(np.dot(vOA, vOB), -1.0, 1.0))
 
     @staticmethod
     def unitVectors(vecs):
@@ -51,7 +51,7 @@ class MVCCloner:
         self.boundary = np.flip(contours[0].squeeze(1), axis=1)
 
     def buildBoundaryHierarchy(self, coarsestLevelMaximumNumberOfPoint=16):
-        self.hierarchy = [list(range(len(self.boundary)))]
+        self.hierarchy = [np.array(range(len(self.boundary)))]
         while len(self.hierarchy[-1]) > coarsestLevelMaximumNumberOfPoint:
             self.hierarchy.append(self.hierarchy[-1][::2])
         self.hierarchy = self.hierarchy[::-1]
@@ -70,13 +70,16 @@ class MVCCloner:
                 break
 
             nextLevelSamples = set()
-            for sample in samples[-1]:
-                x = self.boundary[self.hierarchy[curLevel][sample]]
-                xpre = self.boundary[self.hierarchy[curLevel][sample-1]]
-                xnxt = self.boundary[self.hierarchy[curLevel][(sample+1) % len(self.hierarchy[curLevel])]]
-                if np.linalg.norm(queryPoint - x) > εDist and \
-                    self.angleBetween(xpre, queryPoint, x) < εAng and \
-                    self.angleBetween(x, queryPoint, xnxt) < εAng:
+
+            xs = self.boundary[self.hierarchy[curLevel][samples[-1]]]
+            xpres = self.boundary[np.roll(self.hierarchy[curLevel], 1)[samples[-1]]]
+            xnxts = self.boundary[np.roll(self.hierarchy[curLevel], -1)[samples[-1]]]
+            dists = np.linalg.norm(xs - queryPoint, axis=1)
+            anglePres = self.anglesBetween(xpres, queryPoint, xs)
+            angleNxts = self.anglesBetween(xs, queryPoint, xnxts)
+
+            for idx, sample in enumerate(samples[-1]):
+                if dists[idx] > εDist and anglePres[idx] < εAng and angleNxts[idx] < εAng:
                     continue
 
                 nextLevelSamples.add((sample*2-1) % len(self.hierarchy[curLevel+1]))
