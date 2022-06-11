@@ -48,7 +48,7 @@ if __name__ == '__main__':
     points = [{"x":41,"y":66.75},{"x":8,"y":106.75},{"x":24,"y":145.75},{"x":85,"y":169.75},{"x":178,"y":186.75},{"x":286,"y":185.75},{"x":358,"y":178.75},{"x":371,"y":144.75},{"x":361,"y":96.75},{"x":333,"y":51.75},{"x":283,"y":53.75},{"x":200,"y":50.75},{"x":122.5,"y":49.75}]
     points = np.array([[point['x'], point['y']] for point in points], dtype=int)
 
-    image = cv2.imread("images/src1.png")
+    image = cv2.imread("static/images/src1.png")
     image, points = crop_image(image, points)
     image, points = resize_image(image, points, 2, 2)
     image, points = rotate_image(image, points, 30)

@@ -11,6 +11,8 @@ app = Flask(__name__)
 app = Flask(__name__, template_folder="templates")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 app.config["UPLOAD_FOLDER"] = "static/user_data"
+if not os.path.exists("static/user_data"):
+    os.makedirs("static/user_data")
 
 @app.route("/", methods=["GET"])
 def index():
@@ -47,6 +49,4 @@ def clone():
     return ''
 
 if __name__ == "__main__":
-    if not os.path.exists("static/user_data"):
-        os.makedirs("static/user_data")
     app.run(app, debug=False, host="0.0.0.0", port=8000)
