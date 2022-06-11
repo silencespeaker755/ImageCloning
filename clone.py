@@ -201,7 +201,6 @@ class MVCCloner:
         return np.array(R)
 
     def barycentricInterpolate(self, meanValueInterpolants):
-        #cv2.imshow('123123123', self.barycentric)
         rImg = np.einsum('ijk,ijkl->ijl', self.barycentric, meanValueInterpolants[self.meshTriangles[self.triangleIndices]])
         rImg[self.triangleIndices == -1] = 0
         #cv2.imshow('123123', rImg)
@@ -228,7 +227,10 @@ class MVCCloner:
         diff = destPatch - self.src
         meanValueInterpolants = self.calcMeanValueInterpolants(diff)
         rImg = self.barycentricInterpolate(meanValueInterpolants)
-        cloneResult = np.where(np.repeat((self.triangleIndices != -1)[:, :, np.newaxis], 3, axis=2), self.src + rImg, destPatch)
+
+        mask = (self.triangleIndices != -1).astype(np.uint8)
+        mask = cv2.erode(mask, np.ones((5, 5), np.uint8), iterations=1)
+        cloneResult = np.where(np.repeat((mask)[:, :, np.newaxis], 3, axis=2), self.src + rImg, destPatch)
 
         finalImage = dest
         finalImage[anchor[0]:anchor[0]+self.src.shape[0], anchor[1]:anchor[1]+self.src.shape[1]] = cloneResult
@@ -292,6 +294,8 @@ if __name__ == '__main__':
 
     ## check barycentric
     print("some barycentric coords")
+    cv2.imshow('bary', cloner.barycentric)
+    cv2.waitKey()
 
     ## need to take the points inside the polygon
     print(cloner.barycentric[50:55, 50:55])
