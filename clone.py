@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import pygalmesh
+from multiprocessing import Pool
 
 from time import perf_counter
 
@@ -154,7 +155,8 @@ class MVCCloner:
     
     def calcMVC(self):
         with timer('sample'):
-            self.meshPointBoundarySamples = [self.sampleBoundary(point) for point in self.meshPoints]
+            with Pool(4) as p:
+                self.meshPointBoundarySamples = p.map(self.sampleBoundary, self.meshPoints)
         self.meshPointFlattenBoundarySamples = [np.sort([y for x in samples for y in x]) for samples in self.meshPointBoundarySamples]
         self.meshPointMVC = []
         for meshPoint, boundarySamples in zip(self.meshPoints, self.meshPointFlattenBoundarySamples):
