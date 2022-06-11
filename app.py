@@ -47,4 +47,6 @@ def clone():
     return ''
 
 if __name__ == "__main__":
+    if not os.path.exists("static/user_data"):
+        os.makedirs("static/user_data")
     app.run(app, debug=False, host="0.0.0.0", port=8000)
