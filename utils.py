@@ -14,7 +14,8 @@ def crop_image(image, points):
     cv2.drawContours(mask, [points], -1, (255, 255, 255), -1, cv2.LINE_AA)
 
     ## (3) do bit-op
-    dst = cv2.bitwise_and(croped, croped, mask=mask)
+    croped = cv2.cvtColor(croped, cv2.COLOR_BGR2BGRA)
+    dst = np.where(np.repeat(mask[:, :, np.newaxis], 4, axis=2), croped, np.zeros_like(croped))
     return dst, points
 
 def resize_image(image, points, fx, fy):
@@ -67,7 +68,7 @@ if __name__ == '__main__':
     # cv2.waitKey(0)
 
     cloner = clone.MVCCloner()
-    img = image
+    img = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
     dest = cv2.imread('static/images/dst1.png')
     poly = np.flip(points, axis=1)
     ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
