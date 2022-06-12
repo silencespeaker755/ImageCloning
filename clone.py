@@ -47,7 +47,8 @@ class MVCCloner:
 
     def calcBoundaryContour(self):
         canvas = np.zeros(self.src.shape[:2], dtype=np.uint8)
-        canvas = cv2.polylines(canvas, [np.flip(self.boundaryPolygon, axis=1)], True, 1)
+        canvas = cv2.fillPoly(canvas, [np.flip(self.boundaryPolygon, axis=1)], 1)
+        canvas = cv2.erode(canvas, np.ones((5, 5), np.uint8), iterations=1)
         contours, _ = cv2.findContours(canvas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         self.boundary = np.flip(contours[0].squeeze(1), axis=1)
 
