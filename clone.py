@@ -250,8 +250,8 @@ class MVCCloner:
 
 if __name__ == '__main__':
     cloner = MVCCloner()
-    img = cv2.imread('src1.jpg').astype(np.float32) / 255
-    dest = cv2.imread('dst1.jpg').astype(np.float32) / 255
+    img = cv2.imread('static/images/src1.png').astype(np.float32) / 255
+    dest = cv2.imread('static/images/dst1.png').astype(np.float32) / 255
     poly = np.array([[50, 10], [50, 390], [210, 390], [210, 10]])
     ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
     cv2.imshow('result', ret)
