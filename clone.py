@@ -35,7 +35,7 @@ class MVCCloner:
 
     @staticmethod
     def unitVectors(vecs):
-        return vecs / np.linalg.norm(vecs, axis=1, keepdims=True)
+        return vecs / (np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-15)
 
     @staticmethod
     def anglesBetween(pAs, pO, pBs):
@@ -174,11 +174,7 @@ class MVCCloner:
             '''
             angles = self.anglesBetween(self.boundary[boundarySamples], meshPoint, self.boundary[np.roll(boundarySamples, -1)])
             tanHalfAngles = np.tan(angles / 2)
-            w = (tanHalfAngles + np.roll(tanHalfAngles, 1)) / lenXP
-
-            # workaround. may not work properly
-            w[np.isnan(w)] = 1e9
-
+            w = (tanHalfAngles + np.roll(tanHalfAngles, 1)) / (lenXP + 1e-15)
             λ = w / w.sum()
             self.meshPointMVC.append(λ)
 
