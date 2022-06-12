@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import clone
 
 def crop_image(image, points):
     ## (1) Crop the bounding rect
@@ -44,15 +45,29 @@ def rotate_image(image, points, angle):
     points = np.matmul(points, rotation_mat[:,:2].T) + np.array([bound_w/2, bound_h/2])
     return image, points.astype(int)
 
+def trim_image(image, points):
+    x,y,w,h = cv2.boundingRect(points)
+    points = points - np.array([x, y])
+    return image[y:y+h, x:x+w], points
+
 if __name__ == '__main__':
     points = [{"x":41,"y":66.75},{"x":8,"y":106.75},{"x":24,"y":145.75},{"x":85,"y":169.75},{"x":178,"y":186.75},{"x":286,"y":185.75},{"x":358,"y":178.75},{"x":371,"y":144.75},{"x":361,"y":96.75},{"x":333,"y":51.75},{"x":283,"y":53.75},{"x":200,"y":50.75},{"x":122.5,"y":49.75}]
     points = np.array([[point['x'], point['y']] for point in points], dtype=int)
 
     image = cv2.imread("static/images/src1.png")
     image, points = crop_image(image, points)
-    image, points = resize_image(image, points, 2, 2)
+    image, points = resize_image(image, points, 1.2, 1.2)
     image, points = rotate_image(image, points, 30)
+    image, points = trim_image(image, points)
     for point in points:
         image = cv2.circle(image, point, 5, (255, 0, 0), 1)
     cv2.imshow("image", image)
     cv2.waitKey(0)
+
+    cloner = clone.MVCCloner()
+    img = image.astype(np.float32) / 255
+    dest = cv2.imread('static/images/dst1.png').astype(np.float32) / 255
+    poly = np.flip(points, axis=1)
+    ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
+    cv2.imshow('result', ret)
+    cv2.waitKey()
