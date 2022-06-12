@@ -177,7 +177,7 @@ class MVCCloner:
             w = (tanHalfAngles + np.roll(tanHalfAngles, 1)) / lenXP
 
             # workaround. may not work properly
-            w[np.isnan(w)] = 0
+            w[np.isnan(w)] = 1e9
 
             λ = w / w.sum()
             self.meshPointMVC.append(λ)
@@ -235,7 +235,6 @@ class MVCCloner:
         rImg = self.barycentricInterpolate(meanValueInterpolants)
 
         mask = (self.triangleIndices != -1).astype(np.uint8)
-        mask = cv2.erode(mask, np.ones((5, 5), np.uint8), iterations=1)
         cloneResult = np.where(np.repeat((mask)[:, :, np.newaxis], 3, axis=2), self.src + rImg, destPatch)
 
         finalImage = dest
