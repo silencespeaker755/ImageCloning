@@ -1,11 +1,13 @@
 import cv2
 import numpy as np
+
 import clone
+
 
 def crop_image(image, points):
     ## (1) Crop the bounding rect
-    x,y,w,h = cv2.boundingRect(points)
-    croped = image[y:y+h, x:x+w]
+    x, y, w, h = cv2.boundingRect(points)
+    croped = image[y : y + h, x : x + w]
 
     ## (2) make mask
     points = points - points.min(axis=0)
@@ -14,7 +16,10 @@ def crop_image(image, points):
     cv2.drawContours(mask, [points], -1, (255, 255, 255), -1, cv2.LINE_AA)
 
     ## (3) do bit-op
-    dst = cv2.bitwise_and(croped, croped, mask=mask)
+    croped = cv2.cvtColor(croped, cv2.COLOR_BGR2BGRA)
+    dst = np.where(
+        np.repeat(mask[:, :, np.newaxis], 4, axis=2), croped, np.zeros_like(croped)
+    )
     return dst, points
 
 def resize_image(image, points, width, height):
@@ -26,32 +31,42 @@ def resize_image(image, points, width, height):
 
     return image, points
 
-def rotate_image(image, points, angle):
-    height, width = image.shape[:2] # image shape has 3 dimensions
-    image_center = (width/2, height/2) # getRotationMatrix2D needs coordinates in reverse order (width, height) compared to shape
 
-    rotation_mat = cv2.getRotationMatrix2D(image_center, angle, 1.)
+def rotate_image(image, points, angle):
+    height, width = image.shape[:2]  # image shape has 3 dimensions
+    image_center = (
+        width / 2,
+        height / 2,
+    )  # getRotationMatrix2D needs coordinates in reverse order (width, height) compared to shape
+
+    rotation_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
     # rotation calculates the cos and sin, taking absolutes of those.
-    abs_cos = abs(rotation_mat[0,0]) 
-    abs_sin = abs(rotation_mat[0,1])
+    abs_cos = abs(rotation_mat[0, 0])
+    abs_sin = abs(rotation_mat[0, 1])
 
     # find the new width and height bounds
     bound_w = int(height * abs_sin + width * abs_cos)
     bound_h = int(height * abs_cos + width * abs_sin)
 
     # subtract old image center (bringing image back to origo) and adding the new image center coordinates
-    rotation_mat[0, 2] += bound_w/2 - image_center[0]
-    rotation_mat[1, 2] += bound_h/2 - image_center[1]
-    image = cv2.warpAffine(image, rotation_mat, (bound_w, bound_h), borderMode=cv2.BORDER_REPLICATE)
-    
-    points = points - np.array([width*0.5, height*0.5])
-    points = np.matmul(points, rotation_mat[:,:2].T) + np.array([bound_w/2, bound_h/2])
+    rotation_mat[0, 2] += bound_w / 2 - image_center[0]
+    rotation_mat[1, 2] += bound_h / 2 - image_center[1]
+    image = cv2.warpAffine(
+        image, rotation_mat, (bound_w, bound_h), borderMode=cv2.BORDER_REPLICATE
+    )
+
+    points = points - np.array([width * 0.5, height * 0.5])
+    points = np.matmul(points, rotation_mat[:, :2].T) + np.array(
+        [bound_w / 2, bound_h / 2]
+    )
     return image, points.astype(int)
 
+
 def trim_image(image, points):
-    x,y,w,h = cv2.boundingRect(points)
+    x, y, w, h = cv2.boundingRect(points)
     points = points - np.array([x, y])
-    return image[y:y+h, x:x+w], points
+    return image[y : y + h, x : x + w], points
+
 
 def central_position(pos, w, h, rotate):
     theta = np.radians(-rotate)
