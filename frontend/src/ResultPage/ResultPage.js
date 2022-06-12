@@ -1,10 +1,12 @@
 import React, { useState, useRef } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
+import { Typography } from "@material-ui/core";
 import axios from "../setting";
 import { Button } from "@material-ui/core";
 import ReplayIcon from "@material-ui/icons/Replay";
 import GetAppIcon from "@material-ui/icons/GetApp";
+import TitleSection from "../components/TitleSection";
 
 export default function CropPage() {
   const { imageId } = useParams();
@@ -67,6 +69,7 @@ export default function CropPage() {
 
   return (
     <div className="border-section">
+      <TitleSection title="Result" />
       <div className="flex-all-center">
         <img
           ref={ref}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import HomePage from "./HomePage/HomePage";
 import UploadPage from "./UploadPage/UploadPage";
 import CropPage from "./CropPage/CropPage";
 import TransformPage from "./TransformPage/TransformPage";
@@ -13,7 +14,8 @@ export default function App() {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<UploadPage />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/upload" element={<UploadPage />} />
         <Route path="/crop">
           <Route path=":backgroundId">
             <Route path=":imageId" element={<CropPage />} />

@@ -5,6 +5,7 @@ import axios from "../setting";
 import { Button } from "@material-ui/core";
 import CropIcon from "@material-ui/icons/Crop";
 import ReactLassoSelect, { getCanvas } from "react-lasso-select";
+import TitleSection from "../components/TitleSection";
 import Loading from "../components/Loading";
 
 export default function CropPage() {
@@ -91,6 +92,7 @@ export default function CropPage() {
 
   return (
     <div className="border-section">
+      <TitleSection title="Cropping" />
       <div className="flex-all-center">
         {isEventsLoading || loading ? (
           <Loading />

@@ -7,6 +7,7 @@ import axios from "../setting";
 import Rectangle from "./Rectangle";
 import TransformIcon from "@material-ui/icons/Transform";
 import Loading from "../components/Loading";
+import TitleSection from "../components/TitleSection";
 
 export default function TransformPage() {
   const { backgroundId, imageId } = useParams();
@@ -132,6 +133,7 @@ export default function TransformPage() {
 
   return (
     <div className="border-section">
+      <TitleSection title="Cloning" />
       <div className="flex-all-center">
         <div
           style={{
