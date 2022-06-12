@@ -17,7 +17,10 @@ def crop_image(image, points):
     dst = cv2.bitwise_and(croped, croped, mask=mask)
     return dst, points
 
-def resize_image(image, points, fx, fy):
+def resize_image(image, points, width, height):
+    h, w, _ = image.shape
+    fx = width / w
+    fy = height / h
     image = cv2.resize(image, None, fx=fx, fy=fy)
     points = points * np.array([fx, fy])
 
@@ -50,15 +53,28 @@ def trim_image(image, points):
     points = points - np.array([x, y])
     return image[y:y+h, x:x+w], points
 
+def central_position(pos, w, h, rotate):
+    theta = np.radians(-rotate)
+    c, s = np.cos(theta), np.sin(theta)
+    R = np.array(((c, -s), (s, c)))
+    
+    trans = np.matmul(R, (w/2, h/2)).astype(int)
+    return pos + trans
+
 if __name__ == '__main__':
     points = [{"x":41,"y":66.75},{"x":8,"y":106.75},{"x":24,"y":145.75},{"x":85,"y":169.75},{"x":178,"y":186.75},{"x":286,"y":185.75},{"x":358,"y":178.75},{"x":371,"y":144.75},{"x":361,"y":96.75},{"x":333,"y":51.75},{"x":283,"y":53.75},{"x":200,"y":50.75},{"x":122.5,"y":49.75}]
     points = np.array([[point['x'], point['y']] for point in points], dtype=int)
 
+    theta = -30
     image = cv2.imread("static/images/src1.png")
     image, points = crop_image(image, points)
-    image, points = resize_image(image, points, 1.5, 1.5)
-    image, points = rotate_image(image, points, -30)
+    image, points = resize_image(image, points, 300, 200)
+    image, points = rotate_image(image, points, theta)
     # image, points = trim_image(image, points)
+
+    x, y = 1000, 200
+    position = central_position((x, y), 300, 200, theta)
+    position = np.flip(position)
 
     # test = image.copy()
     # for point in points:
@@ -69,8 +85,13 @@ if __name__ == '__main__':
     cloner = clone.MVCCloner()
     img = image
     dest = cv2.imread('static/images/dst1.png')
+    
     poly = np.flip(points, axis=1)
-    ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
+    ret = cloner.clone(img, dest, poly, position)
+
+    ret = cv2.circle(ret, (x,y), 5, (255, 0, 0), 1)
+    ret = cv2.circle(ret, (position[1],position[0]), 5, (255, 0, 0), 1)
+
     cv2.imshow('result', ret)
     # cv2.imwrite("tmp.png", ret * 255)
     cv2.waitKey()
