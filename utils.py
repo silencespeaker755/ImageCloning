@@ -39,7 +39,7 @@ def rotate_image(image, points, angle):
     # subtract old image center (bringing image back to origo) and adding the new image center coordinates
     rotation_mat[0, 2] += bound_w/2 - image_center[0]
     rotation_mat[1, 2] += bound_h/2 - image_center[1]
-    image = cv2.warpAffine(image, rotation_mat, (bound_w, bound_h))
+    image = cv2.warpAffine(image, rotation_mat, (bound_w, bound_h), borderMode=cv2.BORDER_REPLICATE)
     
     points = points - np.array([width*0.5, height*0.5])
     points = np.matmul(points, rotation_mat[:,:2].T) + np.array([bound_w/2, bound_h/2])
@@ -56,17 +56,19 @@ if __name__ == '__main__':
 
     image = cv2.imread("static/images/src1.png")
     image, points = crop_image(image, points)
-    image, points = resize_image(image, points, 1.2, 1.2)
-    image, points = rotate_image(image, points, 30)
-    image, points = trim_image(image, points)
+    image, points = resize_image(image, points, 1.5, 1.5)
+    image, points = rotate_image(image, points, -30)
+    # image, points = trim_image(image, points)
+
+    test = image.copy()
     for point in points:
-        image = cv2.circle(image, point, 5, (255, 0, 0), 1)
-    cv2.imshow("image", image)
+        test = cv2.circle(test, point, 5, (255, 0, 0), 1)
+    cv2.imshow("test", test)
     cv2.waitKey(0)
 
     cloner = clone.MVCCloner()
-    img = image.astype(np.float32) / 255
-    dest = cv2.imread('static/images/dst1.png').astype(np.float32) / 255
+    img = image
+    dest = cv2.imread('static/images/dst1.png')
     poly = np.flip(points, axis=1)
     ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
     cv2.imshow('result', ret)
