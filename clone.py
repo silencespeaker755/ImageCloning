@@ -47,7 +47,8 @@ class MVCCloner:
 
     def calcBoundaryContour(self):
         canvas = np.zeros(self.src.shape[:2], dtype=np.uint8)
-        canvas = cv2.polylines(canvas, [np.flip(self.boundaryPolygon, axis=1)], True, 1)
+        canvas = cv2.fillPoly(canvas, [np.flip(self.boundaryPolygon, axis=1)], 1)
+        canvas = cv2.erode(canvas, np.ones((5, 5), np.uint8), iterations=1)
         contours, _ = cv2.findContours(canvas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         self.boundary = np.flip(contours[0].squeeze(1), axis=1)
 
@@ -176,7 +177,7 @@ class MVCCloner:
             w = (tanHalfAngles + np.roll(tanHalfAngles, 1)) / lenXP
 
             # workaround. may not work properly
-            w[np.isnan(w)] = 0
+            w[np.isnan(w)] = 1e9
 
             λ = w / w.sum()
             self.meshPointMVC.append(λ)
@@ -234,7 +235,6 @@ class MVCCloner:
         rImg = self.barycentricInterpolate(meanValueInterpolants)
 
         mask = (self.triangleIndices != -1).astype(np.uint8)
-        mask = cv2.erode(mask, np.ones((5, 5), np.uint8), iterations=1)
         cloneResult = np.where(np.repeat((mask)[:, :, np.newaxis], 3, axis=2), self.src + rImg, destPatch)
 
         finalImage = dest
