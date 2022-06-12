@@ -83,6 +83,7 @@ if __name__ == '__main__':
     theta = -30
     image = cv2.imread("static/images/src1.png")
     image, points = crop_image(image, points)
+    image = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
     image, points = resize_image(image, points, 300, 200)
     image, points = rotate_image(image, points, theta)
     # image, points = trim_image(image, points)
@@ -100,6 +101,7 @@ if __name__ == '__main__':
     cloner = clone.MVCCloner()
     img = image
     dest = cv2.imread('static/images/dst1.png')
+    # dest, _ = resize_image(dest, np.array([[0,0]]), 1600, 898)
     
     poly = np.flip(points, axis=1)
     ret = cloner.clone(img, dest, poly, position)

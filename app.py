@@ -68,28 +68,31 @@ def crop():
 @app.route("/clone", methods=["POST"])
 def clone_image():
     req = request.get_json()
+    print(req)
     source_info = req['source_info']
 
     source_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{source_info['id']}.png")
     source = cv2.imread(source_path)
     points = np.load(os.path.join(app.config['UPLOAD_FOLDER'], f"{source_info['id']}.npy"))
 
+    rotate = -source_info['rotate']
     source, points = utils.resize_image(source, points, source_info['width'], source_info['height'])
-    source, points = utils.rotate_image(source, points, source_info['rotate'])
+    source, points = utils.rotate_image(source, points, rotate)
 
-    x, y = source_info['position']['x'], source_info['position']['y']
-    position = utils.central_position((x,y), source_info['width'], source_info['height'], source_info['rotate'])
+    x, y = int(source_info['position']['x']), int(source_info['position']['y'])
+    position = utils.central_position((x,y), source_info['width'], source_info['height'], rotate)
     position = np.flip(position)
 
     dest_info = req['dest_info']
     dest_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{dest_info['id']}.png")
     dest = cv2.imread(dest_path)
+    dest, _ = utils.resize_image(dest, np.array([[0,0]]), dest_info['width'], dest_info['height'])
 
     cloner = clone.MVCCloner()
     poly = np.flip(points, axis=1)
     result = cloner.clone(source, dest, poly, position)
 
-    # result = cv2.circle(result, (source_info['position']['x'], source_info['position']['y']), 5, (255, 0, 0), 1)
+    # result = cv2.circle(result, (x, y), 5, (255, 0, 0), 1)
 
     result_id = f"{source_info['id']}_{dest_info['id']}"
     cv2.imwrite(os.path.join(app.config['UPLOAD_FOLDER'], f"{result_id}.png"), result * 255)
@@ -98,4 +101,4 @@ def clone_image():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=8080)
