@@ -25,7 +25,7 @@ function UploadPage() {
     if (!submit && croppedId && backgroundId) {
       console.log(croppedId, backgroundId);
       console.log("route");
-      navigate(`/crop/${croppedId}`);
+      navigate(`/crop/${backgroundId}/${croppedId}`);
     }
   }, [submit, croppedId, backgroundId]);
 

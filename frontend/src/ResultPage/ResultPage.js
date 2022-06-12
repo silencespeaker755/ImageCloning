@@ -3,11 +3,10 @@ import { useQuery, useMutation } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../setting";
 import { Button } from "@material-ui/core";
-import CropIcon from "@material-ui/icons/Crop";
-import ReactLassoSelect, { getCanvas } from "react-lasso-select";
+import ReplayIcon from "@material-ui/icons/Replay";
 
 export default function CropPage() {
-  const { backgroundId, imageId } = useParams();
+  const { imageId } = useParams();
   const ref = useRef();
   let navigate = useNavigate();
 
@@ -15,7 +14,6 @@ export default function CropPage() {
     height: 0,
     width: 0,
   });
-  const [points, setPoints] = useState([]);
 
   const {
     data: image = "",
@@ -32,9 +30,6 @@ export default function CropPage() {
       });
       console.log(data.data);
       let url = URL.createObjectURL(data.data);
-      const img = new Image();
-      img.src = url;
-      img.onload = () => handleImageLoaded(img.height, img.width);
       return url;
     },
     {
@@ -45,9 +40,9 @@ export default function CropPage() {
     }
   );
 
-  const handleImageLoaded = (imageHeight, imageWidth) => {
-    let height = imageHeight;
-    let width = imageWidth;
+  const handleImageLoaded = () => {
+    let height = ref.current.naturalHeight;
+    let width = ref.current.naturalWidth;
     const maximum = 700;
     if (height > width) {
       width = (width * maximum) / height;
@@ -62,61 +57,26 @@ export default function CropPage() {
     });
   };
 
-  const { mutate: uploadImage } = useMutation(
-    async () => {
-      const msg = await axios.post("/crop", { image_id: imageId, points });
-      return msg;
-    },
-    {
-      retry: false,
-      onSuccess: (msg) => {
-        const { data } = msg;
-        console.log("success!!");
-        navigate(`/transform/${backgroundId}/${data}`);
-      },
-      onError: (err) => {},
-    }
-  );
-
-  const handleSubmit = () => {
-    uploadImage();
-  };
-
   return (
     <div className="border-section">
       <div className="flex-all-center">
-        <ReactLassoSelect
-          value={points}
-          src={image}
-          onChange={(value) => {
-            setPoints(value);
-            console.log(value);
-          }}
-          onComplete={(value) => {
-            if (!value.length) return;
-          }}
-          onImageLoad={handleImageLoaded}
-          imageStyle={
-            image ? { height: imageSize.height, width: imageSize.width } : {}
-          }
-        />
-        {/* <img
+        <img
           ref={ref}
           src={image}
-          alt="haha"
-            onLoad={handleImageLoaded}
+          alt="result"
+          onLoad={handleImageLoaded}
           style={
             image ? { height: imageSize.height, width: imageSize.width } : {}
           }
-        /> */}
+        />
       </div>
       <div className="flex-all-center" style={{ marginTop: "30px" }}>
         <Button
           variant="outlined"
-          startIcon={<CropIcon />}
-          onClick={handleSubmit}
+          startIcon={<ReplayIcon />}
+          onClick={() => navigate("/")}
         >
-          Crop
+          Back to Menu
         </Button>
       </div>
     </div>

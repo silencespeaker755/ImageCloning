@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import UploadPage from "./UploadPage";
 import CropPage from "./CropPage/CropPage";
+import TransformPage from "./TransformPage/TransformPage";
+import ResultPage from "./ResultPage/ResultPage";
 
 export default function App() {
   useEffect(() => {
@@ -13,7 +15,17 @@ export default function App() {
       <Routes>
         <Route path="/" element={<UploadPage />} />
         <Route path="/crop">
-          <Route path=":imageId" element={<CropPage />} />
+          <Route path=":backgroundId">
+            <Route path=":imageId" element={<CropPage />} />
+          </Route>
+        </Route>
+        <Route path="/transform">
+          <Route path=":backgroundId">
+            <Route path=":imageId" element={<TransformPage />} />
+          </Route>
+        </Route>
+        <Route path="result">
+          <Route path=":imageId" element={<ResultPage />} />
         </Route>
       </Routes>
     </div>
