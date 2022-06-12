@@ -1,14 +1,15 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../setting";
 import { Button } from "@material-ui/core";
 import CropIcon from "@material-ui/icons/Crop";
 import ReactLassoSelect, { getCanvas } from "react-lasso-select";
+import Loading from "../components/Loading";
 
 export default function CropPage() {
   const { backgroundId, imageId } = useParams();
-  const ref = useRef();
+  const [loading, setLoading] = useState(true);
   let navigate = useNavigate();
 
   const [imageSize, setImageSize] = useState({
@@ -82,33 +83,34 @@ export default function CropPage() {
     uploadImage();
   };
 
+  useEffect(() => {
+    if (imageSize.height && imageSize.height !== "NaNpx") {
+      setLoading(false);
+    }
+  }, [JSON.stringify(imageSize)]);
+
   return (
     <div className="border-section">
       <div className="flex-all-center">
-        <ReactLassoSelect
-          value={points}
-          src={image}
-          onChange={(value) => {
-            setPoints(value);
-            console.log(value);
-          }}
-          onComplete={(value) => {
-            if (!value.length) return;
-          }}
-          onImageLoad={handleImageLoaded}
-          imageStyle={
-            image ? { height: imageSize.height, width: imageSize.width } : {}
-          }
-        />
-        {/* <img
-          ref={ref}
-          src={image}
-          alt="haha"
-            onLoad={handleImageLoaded}
-          style={
-            image ? { height: imageSize.height, width: imageSize.width } : {}
-          }
-        /> */}
+        {isEventsLoading || loading ? (
+          <Loading />
+        ) : (
+          <ReactLassoSelect
+            value={points}
+            src={image}
+            onChange={(value) => {
+              setPoints(value);
+              console.log(value);
+            }}
+            onComplete={(value) => {
+              if (!value.length) return;
+            }}
+            onImageLoad={handleImageLoaded}
+            imageStyle={
+              image ? { height: imageSize.height, width: imageSize.width } : {}
+            }
+          />
+        )}
       </div>
       <div className="flex-all-center" style={{ marginTop: "30px" }}>
         <Button
