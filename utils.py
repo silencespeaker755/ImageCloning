@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-import clone
+# import clone
 
 
 def crop_image(image, points):
@@ -96,11 +96,11 @@ if __name__ == "__main__":
     # cv2.imshow("test", test)
     # cv2.waitKey(0)
 
-    cloner = clone.MVCCloner()
-    img = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
-    dest = cv2.imread("static/images/dst1.png")
-    poly = np.flip(points, axis=1)
-    ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
-    cv2.imshow("result", ret)
-    # cv2.imwrite("tmp.png", ret * 255)
-    cv2.waitKey()
+    # cloner = clone.MVCCloner()
+    # img = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
+    # dest = cv2.imread("static/images/dst1.png")
+    # poly = np.flip(points, axis=1)
+    # ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
+    # cv2.imshow("result", ret)
+    # # cv2.imwrite("tmp.png", ret * 255)
+    # cv2.waitKey()

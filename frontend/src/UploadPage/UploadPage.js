@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import InputPhotoSection from "./components/InputPhotoSection";
+import InputPhotoSection from "./InputPhotoSection";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import { Button } from "@material-ui/core";
-import Loading from "./components/Loading";
-import "./App.css";
+import Loading from "../components/Loading";
+import "../App.css";
 
 function UploadPage() {
   let navigate = useNavigate();
@@ -35,12 +35,14 @@ function UploadPage() {
         <div className="photo-section">
           <InputPhotoSection
             label={"contained-cropped-file-url"}
+            title="Cropped Photo"
             setId={setCroppedId}
             submitting={submit}
             reset={reset}
           />
           <InputPhotoSection
             label={"contained-background-file-url"}
+            title="Background Photo"
             setId={setBackgroundId}
             submitting={submit}
             reset={reset}

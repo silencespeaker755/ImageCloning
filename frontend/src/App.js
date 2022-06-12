@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import UploadPage from "./UploadPage";
+import UploadPage from "./UploadPage/UploadPage";
 import CropPage from "./CropPage/CropPage";
 import TransformPage from "./TransformPage/TransformPage";
 import ResultPage from "./ResultPage/ResultPage";

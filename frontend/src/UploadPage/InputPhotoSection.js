@@ -1,10 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useMutation } from "react-query";
 import axios from "../setting";
+import { Typography } from "@material-ui/core";
 import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate";
 import "../css/flex-style.css";
 
-export default function InputPhotoSection({ label, setId, submitting, reset }) {
+export default function InputPhotoSection({
+  label,
+  title,
+  setId,
+  submitting,
+  reset,
+}) {
   const [image, setImage] = useState(null);
   const ref = useRef();
   const [imageURL, setImageURL] = useState(null);
@@ -64,38 +71,45 @@ export default function InputPhotoSection({ label, setId, submitting, reset }) {
   };
 
   return (
-    <div className="input-photo-block">
-      <label htmlFor={label}>
-        <input
-          accept="image/*"
-          style={{ display: "none" }}
-          id={label}
-          type="file"
-          onChange={handleImageUpload}
-        />
-        <div
-          className="flex-all-center height-100 width-100 mouse-cursor"
-          style={{ minHeight: "300px", minWidth: "300px" }}
-        >
-          <div role="button" tabIndex="0">
-            {imageURL ? (
-              <img
-                src={imageURL}
-                ref={ref}
-                alt={`input-${imageURL}`}
-                style={
-                  imageURL
-                    ? { height: imageSize.height, width: imageSize.width }
-                    : {}
-                }
-                onLoad={handleImageLoaded}
-              />
-            ) : (
-              <AddPhotoAlternateIcon style={{ fontSize: 100 }} />
-            )}
+    <div style={{ width: "40%" }}>
+      <div className="flex-all-center" style={{ marginBottom: "10px" }}>
+        <Typography variant="h5" component="h2">
+          {title}
+        </Typography>
+      </div>
+      <div className="input-photo-block">
+        <label htmlFor={label}>
+          <input
+            accept="image/*"
+            style={{ display: "none" }}
+            id={label}
+            type="file"
+            onChange={handleImageUpload}
+          />
+          <div
+            className="flex-all-center height-100 width-100 mouse-cursor"
+            style={{ minHeight: "300px", minWidth: "300px" }}
+          >
+            <div role="button" tabIndex="0">
+              {imageURL ? (
+                <img
+                  src={imageURL}
+                  ref={ref}
+                  alt={`input-${imageURL}`}
+                  style={
+                    imageURL
+                      ? { height: imageSize.height, width: imageSize.width }
+                      : {}
+                  }
+                  onLoad={handleImageLoaded}
+                />
+              ) : (
+                <AddPhotoAlternateIcon style={{ fontSize: 100 }} />
+              )}
+            </div>
           </div>
-        </div>
-      </label>
+        </label>
+      </div>
     </div>
   );
 }

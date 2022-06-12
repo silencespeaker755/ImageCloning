@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "../setting";
 import { Button } from "@material-ui/core";
 import ReplayIcon from "@material-ui/icons/Replay";
+import GetAppIcon from "@material-ui/icons/GetApp";
 
 export default function CropPage() {
   const { imageId } = useParams();
@@ -57,6 +58,13 @@ export default function CropPage() {
     });
   };
 
+  const handleDownload = (e) => {
+    const element = document.createElement("a");
+    element.href = image;
+    element.download = "result.png";
+    element.click();
+  };
+
   return (
     <div className="border-section">
       <div className="flex-all-center">
@@ -77,6 +85,14 @@ export default function CropPage() {
           onClick={() => navigate("/")}
         >
           Back to Menu
+        </Button>
+        <div style={{ width: "10%" }} />
+        <Button
+          variant="outlined"
+          startIcon={<GetAppIcon />}
+          onClick={handleDownload}
+        >
+          Download
         </Button>
       </div>
     </div>

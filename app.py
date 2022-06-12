@@ -5,7 +5,8 @@ import os
 import cv2
 import random
 import numpy as np
-import clone
+
+# import clone
 
 async_mode = None
 app = Flask(__name__)
