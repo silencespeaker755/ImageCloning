@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-# import clone
+import clone
 
 
 def crop_image(image, points):
@@ -16,7 +16,10 @@ def crop_image(image, points):
     cv2.drawContours(mask, [points], -1, (255, 255, 255), -1, cv2.LINE_AA)
 
     ## (3) do bit-op
-    dst = cv2.bitwise_and(croped, croped, mask=mask)
+    croped = cv2.cvtColor(croped, cv2.COLOR_BGR2BGRA)
+    dst = np.where(
+        np.repeat(mask[:, :, np.newaxis], 4, axis=2), croped, np.zeros_like(croped)
+    )
     return dst, points
 
 
@@ -46,7 +49,9 @@ def rotate_image(image, points, angle):
     # subtract old image center (bringing image back to origo) and adding the new image center coordinates
     rotation_mat[0, 2] += bound_w / 2 - image_center[0]
     rotation_mat[1, 2] += bound_h / 2 - image_center[1]
-    image = cv2.warpAffine(image, rotation_mat, (bound_w, bound_h))
+    image = cv2.warpAffine(
+        image, rotation_mat, (bound_w, bound_h), borderMode=cv2.BORDER_REPLICATE
+    )
 
     points = points - np.array([width * 0.5, height * 0.5])
     points = np.matmul(points, rotation_mat[:, :2].T) + np.array(
@@ -81,18 +86,21 @@ if __name__ == "__main__":
 
     image = cv2.imread("static/images/src1.png")
     image, points = crop_image(image, points)
-    image, points = resize_image(image, points, 1.2, 1.2)
-    image, points = rotate_image(image, points, 30)
-    image, points = trim_image(image, points)
-    for point in points:
-        image = cv2.circle(image, point, 5, (255, 0, 0), 1)
-    cv2.imshow("image", image)
-    cv2.waitKey(0)
+    image, points = resize_image(image, points, 1.5, 1.5)
+    image, points = rotate_image(image, points, -30)
+    # image, points = trim_image(image, points)
 
-    # cloner = clone.MVCCloner()
-    # img = image.astype(np.float32) / 255
-    # dest = cv2.imread('static/images/dst1.png').astype(np.float32) / 255
-    # poly = np.flip(points, axis=1)
-    # ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
-    # cv2.imshow('result', ret)
-    # cv2.waitKey()
+    # test = image.copy()
+    # for point in points:
+    #     test = cv2.circle(test, point, 5, (255, 0, 0), 1)
+    # cv2.imshow("test", test)
+    # cv2.waitKey(0)
+
+    cloner = clone.MVCCloner()
+    img = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
+    dest = cv2.imread("static/images/dst1.png")
+    poly = np.flip(points, axis=1)
+    ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
+    cv2.imshow("result", ret)
+    # cv2.imwrite("tmp.png", ret * 255)
+    cv2.waitKey()

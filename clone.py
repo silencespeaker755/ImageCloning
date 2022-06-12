@@ -35,7 +35,7 @@ class MVCCloner:
 
     @staticmethod
     def unitVectors(vecs):
-        return vecs / np.linalg.norm(vecs, axis=1, keepdims=True)
+        return vecs / (np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-15)
 
     @staticmethod
     def anglesBetween(pAs, pO, pBs):
@@ -47,7 +47,8 @@ class MVCCloner:
 
     def calcBoundaryContour(self):
         canvas = np.zeros(self.src.shape[:2], dtype=np.uint8)
-        canvas = cv2.polylines(canvas, [np.flip(self.boundaryPolygon, axis=1)], True, 1)
+        canvas = cv2.fillPoly(canvas, [np.flip(self.boundaryPolygon, axis=1)], 1)
+        canvas = cv2.erode(canvas, np.ones((5, 5), np.uint8), iterations=1)
         contours, _ = cv2.findContours(canvas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         self.boundary = np.flip(contours[0].squeeze(1), axis=1)
 
@@ -173,11 +174,7 @@ class MVCCloner:
             '''
             angles = self.anglesBetween(self.boundary[boundarySamples], meshPoint, self.boundary[np.roll(boundarySamples, -1)])
             tanHalfAngles = np.tan(angles / 2)
-            w = (tanHalfAngles + np.roll(tanHalfAngles, 1)) / lenXP
-
-            # workaround. may not work properly
-            w[np.isnan(w)] = 0
-
+            w = (tanHalfAngles + np.roll(tanHalfAngles, 1)) / (lenXP + 1e-15)
             λ = w / w.sum()
             self.meshPointMVC.append(λ)
 
@@ -234,7 +231,6 @@ class MVCCloner:
         rImg = self.barycentricInterpolate(meanValueInterpolants)
 
         mask = (self.triangleIndices != -1).astype(np.uint8)
-        mask = cv2.erode(mask, np.ones((5, 5), np.uint8), iterations=1)
         cloneResult = np.where(np.repeat((mask)[:, :, np.newaxis], 3, axis=2), self.src + rImg, destPatch)
 
         finalImage = dest
@@ -244,14 +240,16 @@ class MVCCloner:
     def clone(self, src, dest, boundaryPolygon, location):
         ''' You only need to call this function
         '''
+        src = src.astype(np.float32) / 255
+        dest = dest.astype(np.float32) / 255
         self.preprocessSourceImage(src, boundaryPolygon)
         return self.computeCloning(dest, location)
 
 
 if __name__ == '__main__':
     cloner = MVCCloner()
-    img = cv2.imread('static/images/src1.png').astype(np.float32) / 255
-    dest = cv2.imread('static/images/dst1.png').astype(np.float32) / 255
+    img = cv2.imread('static/images/src1.png')
+    dest = cv2.imread('static/images/dst1.png')
     poly = np.array([[50, 10], [50, 390], [210, 390], [210, 10]])
     ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
     cv2.imshow('result', ret)
