@@ -70,7 +70,7 @@ def clone_image():
     result = cloner.clone(source, dest, poly, position)
 
     result_id = f"{source_id}_{dest_id}"
-    cv2.imwrite(os.path.join(app.config['UPLOAD_FOLDER'], f"{result_id}.png"), result)
+    cv2.imwrite(os.path.join(app.config['UPLOAD_FOLDER'], f"{result_id}.png"), result * 255)
 
     return result_id
 

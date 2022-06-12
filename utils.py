@@ -60,11 +60,11 @@ if __name__ == '__main__':
     image, points = rotate_image(image, points, -30)
     # image, points = trim_image(image, points)
 
-    test = image.copy()
-    for point in points:
-        test = cv2.circle(test, point, 5, (255, 0, 0), 1)
-    cv2.imshow("test", test)
-    cv2.waitKey(0)
+    # test = image.copy()
+    # for point in points:
+    #     test = cv2.circle(test, point, 5, (255, 0, 0), 1)
+    # cv2.imshow("test", test)
+    # cv2.waitKey(0)
 
     cloner = clone.MVCCloner()
     img = image
@@ -72,4 +72,5 @@ if __name__ == '__main__':
     poly = np.flip(points, axis=1)
     ret = cloner.clone(img, dest, poly, np.array([200, 1000]))
     cv2.imshow('result', ret)
+    # cv2.imwrite("tmp.png", ret * 255)
     cv2.waitKey()
