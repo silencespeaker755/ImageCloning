@@ -32,7 +32,8 @@ def crop():
     image_id = req['image_id']
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{image_id}.png")
     image = cv2.imread(image_path)
-    cropped, points = utils.crop_image(image, req['points'])
+    points = np.array([[point['x'], point['y']] for point in req['points']], dtype=int)
+    cropped, points = utils.crop_image(image, points)
     np.save(os.path.join(app.config['UPLOAD_FOLDER'], f"{image_id}_cropped.npy"), points)
     cv2.imwrite(os.path.join(app.config['UPLOAD_FOLDER'], f"{image_id}_cropped.png"), cropped)
     return image_id + "_cropped"
